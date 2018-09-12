@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 /**
  * This class allows to send announce messages to Twitter.
@@ -55,15 +56,15 @@ public class Twitter implements Announcer {
 
             String credentials = Base64.encodeBase64String((username + ":" + password).getBytes("UTF-8")).trim();
             connection.setRequestProperty("Authorization", "Basic " + credentials);
-            final OutputStream outputStream = connection.getOutputStream();
-            IOUtils.write("status=" + URLEncoder.encode(message, "UTF-8"), outputStream);
-            IOUtils.closeQuietly(outputStream);
+            try (OutputStream outputStream = connection.getOutputStream()) {
+                IOUtils.write("status=" + URLEncoder.encode(message, "UTF-8"), outputStream, Charset.defaultCharset());
+            }
 
             logger.info("Successfully tweeted \'" + message + "\' using account \'" + username + "\'");
             if (logger.isDebugEnabled()) {
-                final InputStream inputStream = connection.getInputStream();
-                logger.debug(IOUtils.toString(inputStream, "UTF-8"));
-                IOUtils.closeQuietly(inputStream);
+                try (InputStream inputStream = connection.getInputStream()) {
+                    logger.debug(IOUtils.toString(inputStream, "UTF-8"));
+                }
             }
         } catch (Exception e) {
             throw UncheckedException.throwAsUncheckedException(e);

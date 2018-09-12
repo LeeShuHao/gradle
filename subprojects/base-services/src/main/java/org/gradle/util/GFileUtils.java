@@ -238,7 +238,7 @@ public class GFileUtils {
 
     public static void writeStringToFile(File file, String data) {
         try {
-            FileUtils.writeStringToFile(file, data);
+            FileUtils.writeStringToFile(file, data, Charset.defaultCharset());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
